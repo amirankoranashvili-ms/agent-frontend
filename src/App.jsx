@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ChatSidebar from './components/ChatSidebar'
@@ -17,6 +17,28 @@ function getStoredUser() {
   } catch { return null }
 }
 
+function AppShell({ user, onLogin, onLogout }) {
+  const { pathname } = useLocation()
+  const isDT = pathname === '/drive-through'
+
+  return (
+    <>
+      <Navbar user={user} onLogin={onLogin} onLogout={onLogout} />
+      <main>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/menu" element={<Menu />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/drive-through" element={<DriveThrough />} />
+        </Routes>
+      </main>
+      {!isDT && <Footer />}
+      {!isDT && <ChatSidebar />}
+    </>
+  )
+}
+
 function App() {
   const [user, setUser] = useState(getStoredUser)
 
@@ -32,18 +54,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Navbar user={user} onLogin={handleLogin} onLogout={handleLogout} />
-      <main>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/menu" element={<Menu />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/careers" element={<Careers />} />
-          <Route path="/drive-through" element={<DriveThrough />} />
-        </Routes>
-      </main>
-      <Footer />
-      <ChatSidebar />
+      <AppShell user={user} onLogin={handleLogin} onLogout={handleLogout} />
     </BrowserRouter>
   )
 }
