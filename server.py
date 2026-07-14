@@ -142,7 +142,13 @@ def health():
 
 
 app.mount("/assets", StaticFiles(directory=os.path.join(DIST_DIR, "assets")), name="assets")
-app.mount("/", StaticFiles(directory=DIST_DIR, html=True), name="spa")
+
+@app.get("/{path:path}")
+async def spa_fallback(path: str):
+    file_path = os.path.join(DIST_DIR, path)
+    if os.path.isfile(file_path):
+        return FileResponse(file_path)
+    return FileResponse(os.path.join(DIST_DIR, "index.html"))
 
 
 if __name__ == "__main__":
