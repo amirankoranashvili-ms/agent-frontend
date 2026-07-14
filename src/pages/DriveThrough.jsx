@@ -4,6 +4,82 @@ import './DriveThrough.css'
 const SAMPLE_RATE = 24000
 const API_BASE = 'https://fastxfood-api-764628510125.us-central1.run.app'
 
+const EXPRESSIONS = [
+  { l: { scaleY: 1, scaleX: 1 }, r: { scaleY: 1, scaleX: 1 } },
+  { l: { scaleY: 0.12 }, r: { scaleY: 0.12 } },
+  { l: { scaleY: 0.5 }, r: { scaleY: 1 } },
+  { l: { scaleY: 1 }, r: { scaleY: 0.12, scaleX: 1.3 } },
+  { l: { scaleY: 0.55, translateY: -1 }, r: { scaleY: 0.55, translateY: -1 } },
+  { l: { scaleY: 1.3, scaleX: 0.85 }, r: { scaleY: 1.3, scaleX: 0.85 } },
+  { l: { scaleY: 0.4, translateY: 1 }, r: { scaleY: 0.4, translateY: 1 } },
+]
+
+function eyeTransform(expr) {
+  const sx = expr.scaleX ?? 1
+  const sy = expr.scaleY ?? 1
+  const ty = expr.translateY ?? 0
+  return `scaleX(${sx}) scaleY(${sy}) translateY(${ty}px)`
+}
+
+function BotAvatar({ isSpeaking }) {
+  const [expr, setExpr] = useState(0)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    function cycle() {
+      const isNormal = Math.random() < 0.4
+      const next = isNormal ? 0 : 1 + Math.floor(Math.random() * (EXPRESSIONS.length - 1))
+      setExpr(next)
+      const hold = next === 1 ? 200 : 800 + Math.random() * 2500
+      timerRef.current = setTimeout(cycle, hold)
+    }
+    timerRef.current = setTimeout(cycle, 1500 + Math.random() * 2000)
+    return () => clearTimeout(timerRef.current)
+  }, [])
+
+  const ex = EXPRESSIONS[expr] || EXPRESSIONS[0]
+
+  const [smiling, setSmiling] = useState(false)
+  const smileRef = useRef(null)
+
+  useEffect(() => {
+    function smileCycle() {
+      if (!isSpeaking && Math.random() < 0.3) {
+        setSmiling(true)
+        smileRef.current = setTimeout(() => {
+          setSmiling(false)
+          smileRef.current = setTimeout(smileCycle, 2000 + Math.random() * 3000)
+        }, 1500 + Math.random() * 1500)
+      } else {
+        smileRef.current = setTimeout(smileCycle, 2000 + Math.random() * 3000)
+      }
+    }
+    smileRef.current = setTimeout(smileCycle, 3000)
+    return () => clearTimeout(smileRef.current)
+  }, [isSpeaking])
+
+  useEffect(() => {
+    if (isSpeaking) setSmiling(false)
+  }, [isSpeaking])
+
+  return (
+    <div className={`dt-bot ${isSpeaking ? 'speaking' : ''} ${smiling ? 'smiling' : ''}`}>
+      <div className="dt-bot-head">
+        <div className="dt-bot-eye dt-bot-eye-l" style={{ transform: eyeTransform(ex.l) }} />
+        <div className="dt-bot-eye dt-bot-eye-r" style={{ transform: eyeTransform(ex.r) }} />
+        <div className="dt-bot-mouth">
+          <span /><span /><span /><span /><span /><span /><span />
+        </div>
+      </div>
+      <div className="dt-bot-body">
+        <div className="dt-bot-led" />
+        <div className="dt-bot-led" />
+        <div className="dt-bot-led" />
+      </div>
+    </div>
+  )
+}
+
 function formatPrice(cents) {
   if (!cents) return ''
   return `$${(cents / 100).toFixed(2)}`
@@ -330,14 +406,30 @@ export default function DriveThrough() {
 
       {/* Voice Controls */}
       <div className="dt-controls">
-        <div className="dt-transcript">
-          {userText && <div className="dt-transcript-user"><span className="dt-label">You</span> {userText}</div>}
-          {agentText && <div className="dt-transcript-agent"><span className="dt-label">Agent</span> {agentText}</div>}
+        <div className="dt-agent-area">
+          <BotAvatar isSpeaking={isSpeaking} />
+          <div className="dt-transcript">
+            {userText && (
+              <div className="dt-transcript-user">
+                <span className="dt-label">You</span>
+                <span className="dt-transcript-text">{userText}</span>
+              </div>
+            )}
+            {agentText && (
+              <div className="dt-transcript-agent">
+                <span className="dt-label">Agent</span>
+                <span className="dt-transcript-text">{agentText}</span>
+              </div>
+            )}
+            {!userText && !agentText && (
+              <div className="dt-transcript-placeholder">Waiting for conversation...</div>
+            )}
+          </div>
         </div>
 
         <div className="dt-mic-area">
           <button
-            className={`dt-mic-btn ${status === 'recording' ? 'recording' : ''} ${isSpeaking ? 'speaking' : ''}`}
+            className={`dt-mic-btn ${status === 'recording' ? 'recording' : ''}`}
             onClick={handleMicClick}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
