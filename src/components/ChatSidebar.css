@@ -1,0 +1,135 @@
+/* ─── Floating Action Button ─── */
+.chat-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 16px rgba(215, 38, 56, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.chat-fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(215, 38, 56, 0.45);
+}
+
+.chat-fab svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* ─── Sidebar Panel ─── */
+.chat-sidebar {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 380px;
+  height: 100vh;
+  background: var(--color-surface);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.3s ease;
+}
+
+.chat-sidebar.open {
+  right: 0;
+}
+
+.chat-sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-bg-warm);
+  flex-shrink: 0;
+}
+
+.chat-sidebar-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-sidebar-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-text);
+}
+
+.chat-sidebar-status {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Body / Placeholder ─── */
+.chat-sidebar-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.chat-placeholder-icon svg {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 20px;
+}
+
+.chat-sidebar-body h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--color-text);
+  margin-bottom: 12px;
+}
+
+.chat-sidebar-body p {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.chat-placeholder-note {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-bg-warm);
+  margin-top: 16px;
+}
+
+/* ─── Overlay ─── */
+.chat-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 999;
+}
+
+@media (max-width: 480px) {
+  .chat-sidebar {
+    width: 100%;
+    right: -100%;
+  }
+}

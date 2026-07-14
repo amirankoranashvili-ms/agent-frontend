@@ -1,0 +1,173 @@
+.navbar {
+  background: var(--color-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.navbar-logo {
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: 3px;
+  color: var(--color-text-on-dark);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.navbar-logo span {
+  color: var(--color-primary);
+}
+
+.navbar-links {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.navbar-links a {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(240, 237, 232, 0.6);
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  transition: color 0.15s, background 0.15s;
+}
+
+.navbar-links a:hover {
+  color: var(--color-text-on-dark);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.navbar-links a.active {
+  color: var(--color-text-on-dark);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-login {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  background: var(--color-accent);
+  padding: 8px 20px;
+  border-radius: var(--radius-md);
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.navbar-login {
+  border: none;
+}
+
+.navbar-login:hover {
+  opacity: 0.9;
+}
+
+/* ─── User Avatar & Dropdown ─── */
+.navbar-user {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.navbar-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s;
+}
+
+.navbar-avatar:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.navbar-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 200px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  z-index: 110;
+}
+
+.dropdown-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-bg-warm);
+}
+
+.dropdown-name {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-text);
+}
+
+.dropdown-points {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.dropdown-logout {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  transition: background 0.15s, color 0.15s;
+}
+
+.dropdown-logout:hover {
+  background: var(--color-bg);
+  color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  .navbar-inner {
+    gap: 16px;
+  }
+
+  .navbar-links {
+    gap: 4px;
+  }
+
+  .navbar-links a {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  .navbar-login {
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+}

@@ -1,0 +1,191 @@
+.about-page {
+  padding-bottom: 64px;
+}
+
+/* ─── Hero ─── */
+.about-hero {
+  background: var(--color-secondary);
+  text-align: center;
+  padding: 64px 24px;
+}
+
+.about-title {
+  font-family: var(--font-display);
+  font-size: 56px;
+  letter-spacing: 3px;
+  color: var(--color-text-on-dark);
+}
+
+.about-tagline {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 600;
+  color: rgba(240, 237, 232, 0.5);
+  margin-top: 8px;
+}
+
+/* ─── Content Sections ─── */
+.about-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 64px 24px;
+}
+
+.about-content {
+  display: flex;
+  gap: 48px;
+  align-items: center;
+}
+
+.about-content.reverse {
+  flex-direction: row-reverse;
+}
+
+.about-text {
+  flex: 1;
+}
+
+.about-text h2 {
+  font-family: var(--font-display);
+  font-size: 36px;
+  letter-spacing: 2px;
+  color: var(--color-secondary);
+  margin-bottom: 20px;
+}
+
+.about-text p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
+}
+
+.about-image {
+  flex: 1;
+  max-width: 480px;
+}
+
+.about-image img {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ─── Values ─── */
+.about-values {
+  background: var(--color-surface);
+  padding: 64px 24px;
+}
+
+.section-title-center {
+  font-family: var(--font-display);
+  font-size: 40px;
+  letter-spacing: 2px;
+  color: var(--color-secondary);
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.values-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.value-card {
+  padding: 28px 24px;
+  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+}
+
+.value-number {
+  font-family: var(--font-display);
+  font-size: 36px;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+}
+
+.value-card h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.value-card p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Numbers ─── */
+.about-numbers {
+  background: var(--color-secondary);
+  padding: 48px 24px;
+}
+
+.numbers-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  text-align: center;
+}
+
+.number-value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 52px;
+  letter-spacing: 2px;
+  color: var(--color-accent);
+}
+
+.number-label {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(240, 237, 232, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1024px) {
+  .about-content,
+  .about-content.reverse {
+    flex-direction: column;
+  }
+
+  .about-image {
+    max-width: 100%;
+  }
+
+  .values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .numbers-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-title {
+    font-size: 40px;
+  }
+
+  .values-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .numbers-grid {
+    grid-template-columns: 1fr;
+  }
+}
