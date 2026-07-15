@@ -34,5 +34,5 @@ jobs:
             --region $REGION \
             --allow-unauthenticated \
             --port 8080 \
-            --set-env-vars "CES_APP_RESOURCE=${{ vars.CES_APP_RESOURCE }},CES_DEPLOYMENT=${{ vars.CES_DEPLOYMENT }}" \
+            --set-env-vars "CES_APP_RESOURCE=${{ vars.CES_APP_RESOURCE }},CES_DEPLOYMENT=${{ vars.CES_DEPLOYMENT }},CES_CHAT_DEPLOYMENT=${{ vars.CES_CHAT_DEPLOYMENT }}" \
             --quiet

@@ -20,6 +20,7 @@ CES_WS_URL = "wss://ces.googleapis.com/ws/google.cloud.ces.v1.SessionService/Bid
 
 CES_APP_RESOURCE = os.environ.get("CES_APP_RESOURCE", "")
 CES_DEPLOYMENT = os.environ.get("CES_DEPLOYMENT", "")
+CES_CHAT_DEPLOYMENT = os.environ.get("CES_CHAT_DEPLOYMENT", "")
 
 
 app = FastAPI()
@@ -34,12 +35,11 @@ def get_access_token():
     return creds.token
 
 
-@app.websocket("/ws/voice")
-async def voice_proxy(client_ws: WebSocket):
+async def _ces_proxy(client_ws: WebSocket, deployment: str, prefix: str):
     await client_ws.accept()
 
     token = get_access_token()
-    session_id = f"dt-{uuid.uuid4().hex[:12]}"
+    session_id = f"{prefix}-{uuid.uuid4().hex[:12]}"
     session_name = f"{CES_APP_RESOURCE}/sessions/{session_id}"
 
     headers = {"Authorization": f"Bearer {token}"}
@@ -59,8 +59,8 @@ async def voice_proxy(client_ws: WebSocket):
                     },
                 }
             }
-            if CES_DEPLOYMENT:
-                config_msg["config"]["deployment"] = CES_DEPLOYMENT
+            if deployment:
+                config_msg["config"]["deployment"] = deployment
 
             await ces_ws.send(json.dumps(config_msg))
             await ces_ws.send(json.dumps({"realtimeInput": {"text": "<event>session start</event>"}}))
@@ -132,6 +132,16 @@ async def voice_proxy(client_ws: WebSocket):
         except Exception:
             pass
         log.info(f"[{session_id}] session ended")
+
+
+@app.websocket("/ws/voice")
+async def voice_proxy(client_ws: WebSocket):
+    await _ces_proxy(client_ws, CES_DEPLOYMENT, "dt")
+
+
+@app.websocket("/ws/chat")
+async def chat_proxy(client_ws: WebSocket):
+    await _ces_proxy(client_ws, CES_CHAT_DEPLOYMENT, "chat")
 
 
 if __name__ == "__main__":
