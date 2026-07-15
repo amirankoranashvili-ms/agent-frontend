@@ -3,6 +3,39 @@ import './ChatSidebar.css'
 
 const SAMPLE_RATE = 24000
 
+function TypedText({ text }) {
+  const [displayed, setDisplayed] = useState('')
+  const targetRef = useRef(text)
+  const indexRef = useRef(0)
+  const rafRef = useRef(null)
+
+  useEffect(() => {
+    targetRef.current = text
+    if (indexRef.current > text.length) {
+      indexRef.current = text.length
+      setDisplayed(text)
+    }
+  }, [text])
+
+  useEffect(() => {
+    let last = 0
+    function tick(ts) {
+      if (ts - last > 15) {
+        last = ts
+        if (indexRef.current < targetRef.current.length) {
+          indexRef.current = Math.min(indexRef.current + 2, targetRef.current.length)
+          setDisplayed(targetRef.current.slice(0, indexRef.current))
+        }
+      }
+      rafRef.current = requestAnimationFrame(tick)
+    }
+    rafRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [])
+
+  return displayed
+}
+
 function MiniBot({ className }) {
   return (
     <div className={`mini-bot ${className || ''}`}>
@@ -33,6 +66,8 @@ export default function ChatSidebar() {
   const speakingTimerRef = useRef(null)
   const messagesEndRef = useRef(null)
   const keepaliveRef = useRef(null)
+  const agentBufRef = useRef('')
+  const agentBufTimerRef = useRef(null)
 
   const isDisconnected = status === 'disconnected' || status === 'ended' || status === 'error'
 
@@ -54,6 +89,42 @@ export default function ChatSidebar() {
     setMessages(prev => [...prev, { role, text, time: new Date() }])
   }
 
+  function flushAgentBuf() {
+    clearTimeout(agentBufTimerRef.current)
+    agentBufRef.current = ''
+    setMessages(prev => {
+      const last = prev[prev.length - 1]
+      if (last && last.role === 'agent' && last.streaming) {
+        return [...prev.slice(0, -1), { ...last, streaming: false }]
+      }
+      return prev
+    })
+  }
+
+  function onAgentText(newText) {
+    const cur = agentBufRef.current
+    let merged
+    if (cur && (newText.startsWith(cur) || cur.startsWith(newText))) {
+      merged = newText.length >= cur.length ? newText : cur
+    } else if (cur) {
+      merged = cur + ' ' + newText
+    } else {
+      merged = newText
+    }
+    agentBufRef.current = merged
+
+    setMessages(prev => {
+      const last = prev[prev.length - 1]
+      if (last && last.role === 'agent' && last.streaming) {
+        return [...prev.slice(0, -1), { ...last, text: merged }]
+      }
+      return [...prev, { role: 'agent', text: merged, time: new Date(), streaming: true }]
+    })
+
+    clearTimeout(agentBufTimerRef.current)
+    agentBufTimerRef.current = setTimeout(flushAgentBuf, 3000)
+  }
+
   function setSpeakingDebounced(val) {
     if (val) {
       clearTimeout(speakingTimerRef.current)
@@ -65,6 +136,8 @@ export default function ChatSidebar() {
 
   function handleNewSession() {
     clearInterval(keepaliveRef.current)
+    clearTimeout(agentBufTimerRef.current)
+    agentBufRef.current = ''
     if (wsRef.current) wsRef.current.close()
     wsRef.current = null
     stopRecording()
@@ -221,36 +294,24 @@ export default function ChatSidebar() {
             return
           }
           if (so.audio && recordingRef.current) playAudioChunk(so.audio)
-          if (so.text) {
-            const newText = so.text
-            setMessages(prev => {
-              const last = prev[prev.length - 1]
-              if (last && last.role === 'agent' && last.streaming) {
-                if (newText.startsWith(last.text) || last.text.startsWith(newText)) {
-                  const longer = newText.length >= last.text.length ? newText : last.text
-                  return [...prev.slice(0, -1), { ...last, text: longer }]
-                }
-                return [...prev.slice(0, -1), { ...last, streaming: false }, { role: 'agent', text: newText, time: new Date(), streaming: true }]
-              }
-              return [...prev, { role: 'agent', text: newText, time: new Date(), streaming: true }]
-            })
-          }
+          if (so.text) onAgentText(so.text)
         }
         if (msg.recognitionResult?.transcript) {
+          flushAgentBuf()
           const t = msg.recognitionResult.transcript
           setMessages(prev => {
             const last = prev[prev.length - 1]
             if (last && last.role === 'user' && last.streaming) {
               return [...prev.slice(0, -1), { ...last, text: t }]
             }
-            const finalized = prev.map(m => m.streaming ? { ...m, streaming: false } : m)
-            return [...finalized, { role: 'user', text: t, time: new Date(), streaming: true }]
+            return [...prev, { role: 'user', text: t, time: new Date(), streaming: true }]
           })
         }
         if (msg.interruptionSignal) {
           clearPlayback()
         }
         if (msg.endSession) {
+          flushAgentBuf()
           setStatus('ended')
           stopRecording()
         }
@@ -274,10 +335,8 @@ export default function ChatSidebar() {
   // ─── Send Text ───
 
   async function sendQuick(text) {
-    setMessages(prev => {
-      const finalized = prev.map(m => m.streaming ? { ...m, streaming: false } : m)
-      return [...finalized, { role: 'user', text, time: new Date() }]
-    })
+    flushAgentBuf()
+    addMessage('user', text)
     await ensureConnected()
     if (wsRef.current && wsRef.current.readyState === 1) {
       wsRef.current.send(JSON.stringify({ realtimeInput: { text } }))
@@ -289,10 +348,8 @@ export default function ChatSidebar() {
     if (!input.trim()) return
     const text = input.trim()
     setInput('')
-    setMessages(prev => {
-      const finalized = prev.map(m => m.streaming ? { ...m, streaming: false } : m)
-      return [...finalized, { role: 'user', text, time: new Date() }]
-    })
+    flushAgentBuf()
+    addMessage('user', text)
 
     await ensureConnected()
     if (wsRef.current && wsRef.current.readyState === 1) {
@@ -380,7 +437,11 @@ export default function ChatSidebar() {
                   <MiniBot className="avatar-bot" />
                 </div>
               )}
-              <div className="chat-msg-bubble">{msg.text}</div>
+              <div className="chat-msg-bubble">
+                {msg.role === 'agent' && msg.streaming
+                  ? <TypedText text={msg.text} />
+                  : msg.text}
+              </div>
             </div>
           ))}
 

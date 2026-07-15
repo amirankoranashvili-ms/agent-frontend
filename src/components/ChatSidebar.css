@@ -345,6 +345,7 @@
   background: var(--color-bg);
   color: var(--color-text);
   border-bottom-left-radius: 4px;
+  transition: max-height 0.3s ease;
 }
 
 .chat-msg-system .chat-msg-bubble {
