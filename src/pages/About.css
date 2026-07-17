@@ -189,3 +189,45 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 480px) {
+  .about-hero {
+    padding: 40px 16px;
+  }
+
+  .about-title {
+    font-size: 32px;
+  }
+
+  .about-tagline {
+    font-size: 18px;
+  }
+
+  .about-section {
+    padding: 40px 16px;
+  }
+
+  .about-content {
+    gap: 32px;
+  }
+
+  .about-text h2 {
+    font-size: 28px;
+  }
+
+  .about-values {
+    padding: 40px 16px;
+  }
+
+  .section-title-center {
+    font-size: 32px;
+  }
+
+  .about-numbers {
+    padding: 32px 16px;
+  }
+
+  .number-value {
+    font-size: 40px;
+  }
+}

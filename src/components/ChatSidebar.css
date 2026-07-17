@@ -209,28 +209,28 @@
   opacity: 0.9;
 }
 
-.chat-close-btn {
-  width: 32px;
-  height: 32px;
+.chat-back-btn {
+  width: 36px;
+  height: 36px;
   border: none;
-  background: none;
-  color: var(--color-text-secondary);
+  background: var(--color-bg);
+  color: var(--color-text);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   flex-shrink: 0;
-  transition: color 0.15s, background 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
 
-.chat-close-btn:hover {
-  color: var(--color-text);
-  background: var(--color-bg);
+.chat-back-btn:hover {
+  background: var(--color-bg-warm);
+  color: var(--color-primary);
 }
 
-.chat-close-btn svg {
-  width: 18px;
-  height: 18px;
+.chat-back-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
 /* ─── Messages ─── */
@@ -588,9 +588,24 @@
 }
 
 /* ─── Responsive ─── */
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .chat-sidebar {
     width: 100%;
     right: -100%;
+  }
+
+  .chat-msg-bubble {
+    max-width: 85%;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-suggestions button {
+    font-size: 12px;
+    padding: 5px 12px;
+  }
+
+  .chat-welcome {
+    padding: 24px 8px;
   }
 }

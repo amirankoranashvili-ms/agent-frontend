@@ -43,6 +43,7 @@ export default function Menu() {
   const [menu, setMenu] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeCat, setActiveCat] = useState(null)
+  const [catDrawerOpen, setCatDrawerOpen] = useState(false)
   const [searchParams] = useSearchParams()
   const sectionRefs = useRef({})
   const isScrolling = useRef(false)
@@ -130,6 +131,43 @@ export default function Menu() {
             )
           })}
         </nav>
+
+        <button className="menu-cat-toggle" onClick={() => setCatDrawerOpen(true)}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+          <span>{menu.categories.find(c => c.id === activeCat)?.name || 'Categories'}</span>
+        </button>
+
+        {catDrawerOpen && <div className="menu-cat-overlay" onClick={() => setCatDrawerOpen(false)} />}
+        <div className={`menu-cat-drawer ${catDrawerOpen ? 'open' : ''}`}>
+          <div className="menu-cat-drawer-header">
+            <span>Categories</span>
+            <button onClick={() => setCatDrawerOpen(false)} aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+          {menu.categories.map(cat => {
+            const bannerFile = CAT_BANNERS[cat.id]
+            return (
+              <button
+                key={cat.id}
+                className={`menu-cat-drawer-btn ${cat.id === activeCat ? 'active' : ''}`}
+                onClick={() => { scrollToCategory(cat.id); setCatDrawerOpen(false) }}
+              >
+                {bannerFile && (
+                  <img src={`${THUMB_BASE}/${bannerFile}.webp`} alt={cat.name} className="menu-cat-drawer-img" />
+                )}
+                <div className="menu-cat-drawer-text">
+                  <span className="menu-cat-drawer-name">{cat.name}</span>
+                  <span className="menu-cat-drawer-count">{cat.items.length} items</span>
+                </div>
+              </button>
+            )
+          })}
+        </div>
 
         <div className="menu-content">
           {menu.categories.map(cat => (

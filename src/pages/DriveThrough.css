@@ -1,5 +1,6 @@
 .dt-page {
   height: calc(100vh - 72px);
+  height: calc(100dvh - 72px);
   display: flex;
   flex-direction: column;
   background: var(--color-bg-warm);
@@ -224,6 +225,37 @@
 }
 
 /* ─── Menu Panel ─── */
+.dt-menu-header-mobile {
+  display: none;
+}
+
+.dt-menu-title-desktop {
+  display: block;
+}
+
+.dt-menu-fab {
+  display: none;
+}
+
+.dt-menu-overlay {
+  display: none;
+}
+
+.dt-menu-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dt-menu-close svg {
+  width: 20px;
+  height: 20px;
+}
 .dt-menu-scroll {
   flex: 1;
   overflow-y: auto;
@@ -289,6 +321,64 @@
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
+  position: relative;
+}
+
+/* ─── Hint Bubble ─── */
+.dt-hint {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  white-space: nowrap;
+  animation: dt-hint-in 0.4s ease-out;
+}
+
+.dt-hint::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 22px;
+  border: 6px solid transparent;
+  border-top-color: var(--color-surface);
+}
+
+@keyframes dt-hint-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dt-hint-close {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border-radius: var(--radius-full);
+  transition: color 0.15s;
+}
+
+.dt-hint-close:hover {
+  color: var(--color-text);
+}
+
+.dt-hint-close svg {
+  width: 14px;
+  height: 14px;
 }
 
 .dt-mic-btn {
@@ -341,6 +431,10 @@
   color: rgba(240, 237, 232, 0.4);
   text-align: center;
   white-space: nowrap;
+}
+
+.dt-status-mobile {
+  display: none;
 }
 
 /* ─── Agent Area (bot + transcript) ─── */
@@ -582,14 +676,172 @@
 @media (max-width: 768px) {
   .dt-main {
     grid-template-columns: 1fr;
+    padding: 8px 10px;
+  }
+
+  /* ─── Menu becomes a right-side drawer ─── */
+  .dt-menu-title-desktop {
+    display: none;
   }
 
   .dt-menu {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 280px;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 101;
+    border-radius: 0;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+    transition: right 0.3s ease;
+  }
+
+  .dt-menu.drawer-open {
+    right: 0;
+  }
+
+  .dt-menu-header-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px 0 0;
+    flex-shrink: 0;
+  }
+
+  .dt-menu-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 100;
+  }
+
+  .dt-menu-fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 140px;
+    right: 0;
+    z-index: 50;
+    width: 54px;
+    height: 54px;
+    padding: 0;
+    background: var(--color-secondary);
+    color: var(--color-text-on-dark);
+    border: none;
+    border-radius: 27px 0 0 27px;
+    box-shadow: -2px 2px 12px rgba(0, 0, 0, 0.2);
+    touch-action: none;
+    user-select: none;
+    cursor: grab;
+  }
+
+  .dt-menu-fab:active {
+    cursor: grabbing;
+  }
+
+  .dt-menu-fab svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .dt-menu-fab span {
     display: none;
   }
 
-  .dt-bot {
+  /* ─── Controls: bot left, mic right (same as desktop) ─── */
+  .dt-controls {
+    padding: 10px 16px;
+    gap: 12px;
+  }
+
+  .dt-bot-head {
+    width: 52px;
+    height: 46px;
+    border-radius: 14px 14px 10px 10px;
+  }
+
+  .dt-bot-eye {
+    width: 8px;
+    height: 8px;
+    top: 13px;
+  }
+
+  .dt-bot-eye-l { left: 12px; }
+  .dt-bot-eye-r { right: 12px; }
+
+  .dt-bot-mouth {
+    bottom: 7px;
+  }
+
+  .dt-bot-body {
+    width: 36px;
+    height: 12px;
+  }
+
+  .dt-bot-led {
+    width: 4px;
+    height: 4px;
+  }
+
+  .dt-transcript-text {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    font-size: 13px;
+  }
+
+  .dt-status-mobile {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(240, 237, 232, 0.5);
+    margin-bottom: 2px;
+  }
+
+  .dt-mic-area .dt-status {
     display: none;
+  }
+
+  .dt-mic-btn {
+    width: 52px;
+    height: 52px;
+  }
+
+  .dt-mic-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .dt-panel-title {
+    font-size: 18px;
+    padding: 12px 16px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dt-item {
+    padding: 10px 12px;
+  }
+
+  .dt-item-name {
+    font-size: 14px;
+  }
+
+  .dt-item-price {
+    font-size: 13px;
+  }
+
+  .dt-confirmed h3 {
+    font-size: 22px;
+  }
+
+  .dt-confirmed-check {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
   }
 }
 

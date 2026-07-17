@@ -103,6 +103,10 @@ export default function DriveThrough() {
   const [agentText, setAgentText] = useState('')
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [menu, setMenu] = useState([])
+  const [menuDrawer, setMenuDrawer] = useState(false)
+  const [showHint, setShowHint] = useState(true)
+  const [fabY, setFabY] = useState(null)
+  const fabDrag = useRef({ active: false, startY: 0, startTop: 0 })
 
   const wsRef = useRef(null)
   const audioCtxRef = useRef(null)
@@ -259,7 +263,7 @@ export default function DriveThrough() {
 
     ws.onopen = () => {
       setStatus('connecting')
-      startRecording().then(() => setStatus('recording')).catch(() => setStatus('error'))
+      startRecording().then(() => { setStatus('recording'); setShowHint(false) }).catch(() => setStatus('error'))
     }
 
     ws.onmessage = (e) => {
@@ -310,13 +314,13 @@ export default function DriveThrough() {
   }
 
   const statusLabel = {
-    idle: 'Click the microphone to start your order',
-    connecting: 'Connecting to agent...',
+    idle: 'Ready',
+    connecting: 'Connecting...',
     recording: 'Listening...',
-    paused: 'Mic paused — click to resume',
-    ended: 'Session ended — refresh to start over',
-    disconnected: 'Disconnected — refresh to reconnect',
-    error: 'Connection error',
+    paused: 'Paused',
+    ended: 'Session ended',
+    disconnected: 'Disconnected',
+    error: 'Error',
   }
 
   return (
@@ -349,7 +353,7 @@ export default function DriveThrough() {
               <p className="dt-confirmed-msg">Pull forward to the window for payment.</p>
             </div>
           ) : orderItems.length === 0 ? (
-            <div className="dt-empty">Start talking to add items to your order.</div>
+            <div className="dt-empty">Your order will appear here.</div>
           ) : (
             <>
               <div className="dt-items">
@@ -385,9 +389,17 @@ export default function DriveThrough() {
           )}
         </div>
 
-        {/* Menu Panel */}
-        <div className="dt-panel dt-menu">
-          <h2 className="dt-panel-title">Menu</h2>
+        {/* Menu Panel (desktop inline, mobile drawer) */}
+        <div className={`dt-panel dt-menu ${menuDrawer ? 'drawer-open' : ''}`}>
+          <div className="dt-menu-header-mobile">
+            <h2 className="dt-panel-title">Menu</h2>
+            <button className="dt-menu-close" onClick={() => setMenuDrawer(false)} aria-label="Close menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+          <h2 className="dt-panel-title dt-menu-title-desktop">Menu</h2>
           <div className="dt-menu-scroll">
             {menu.map(cat => (
               <div key={cat.id} className="dt-menu-cat">
@@ -404,11 +416,56 @@ export default function DriveThrough() {
         </div>
       </div>
 
+      {menuDrawer && <div className="dt-menu-overlay" onClick={() => setMenuDrawer(false)} />}
+
+      <button
+        className="dt-menu-fab"
+        style={fabY != null ? { top: `${fabY}px`, bottom: 'auto' } : undefined}
+        aria-label="View menu"
+        onClick={() => { if (!fabDrag.current.moved) setMenuDrawer(true) }}
+        onTouchStart={(e) => {
+          const t = e.touches[0]
+          const el = e.currentTarget
+          fabDrag.current = { active: true, moved: false, startY: t.clientY, startTop: el.getBoundingClientRect().top }
+        }}
+        onTouchMove={(e) => {
+          if (!fabDrag.current.active) return
+          const dy = e.touches[0].clientY - fabDrag.current.startY
+          if (Math.abs(dy) > 4) fabDrag.current.moved = true
+          const newY = Math.max(80, Math.min(window.innerHeight - 120, fabDrag.current.startTop + dy))
+          setFabY(newY)
+        }}
+        onTouchEnd={() => { fabDrag.current.active = false }}
+        onMouseDown={(e) => {
+          const el = e.currentTarget
+          fabDrag.current = { active: true, moved: false, startY: e.clientY, startTop: el.getBoundingClientRect().top }
+          function onMove(ev) {
+            const dy = ev.clientY - fabDrag.current.startY
+            if (Math.abs(dy) > 4) fabDrag.current.moved = true
+            const newY = Math.max(80, Math.min(window.innerHeight - 120, fabDrag.current.startTop + dy))
+            setFabY(newY)
+          }
+          function onUp() {
+            fabDrag.current.active = false
+            window.removeEventListener('mousemove', onMove)
+            window.removeEventListener('mouseup', onUp)
+          }
+          window.addEventListener('mousemove', onMove)
+          window.addEventListener('mouseup', onUp)
+        }}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        </svg>
+      </button>
+
       {/* Voice Controls */}
       <div className="dt-controls">
         <div className="dt-agent-area">
           <BotAvatar isSpeaking={isSpeaking} />
           <div className="dt-transcript">
+            <div className="dt-status-mobile">{statusLabel[status]}</div>
             {userText && (
               <div className="dt-transcript-user">
                 <span className="dt-label">You</span>
@@ -428,6 +485,16 @@ export default function DriveThrough() {
         </div>
 
         <div className="dt-mic-area">
+          {showHint && status === 'idle' && (
+            <div className="dt-hint">
+              <span>Tap the mic to start your order</span>
+              <button className="dt-hint-close" onClick={(e) => { e.stopPropagation(); setShowHint(false) }} aria-label="Dismiss hint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+          )}
           <button
             className={`dt-mic-btn ${status === 'recording' ? 'recording' : ''}`}
             onClick={handleMicClick}

@@ -7,6 +7,7 @@ export default function Navbar({ user, onLogin, onLogout }) {
   const { pathname } = useLocation()
   const [showLogin, setShowLogin] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const dropdownRef = useRef(null)
 
   useEffect(() => {
@@ -19,6 +20,10 @@ export default function Navbar({ user, onLogin, onLogout }) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [pathname])
+
   return (
     <>
       <nav className="navbar">
@@ -30,6 +35,7 @@ export default function Navbar({ user, onLogin, onLogout }) {
           <div className="navbar-links">
             <Link to="/" className={pathname === '/' ? 'active' : ''}>Home</Link>
             <Link to="/menu" className={pathname === '/menu' ? 'active' : ''}>Menu</Link>
+            <Link to="/drive-through" className={pathname === '/drive-through' ? 'active' : ''}>Drive-Through</Link>
             <Link to="/about" className={pathname === '/about' ? 'active' : ''}>About</Link>
             <Link to="/careers" className={pathname === '/careers' ? 'active' : ''}>Careers</Link>
           </div>
@@ -53,6 +59,27 @@ export default function Navbar({ user, onLogin, onLogout }) {
             </div>
           ) : (
             <button className="navbar-login" onClick={() => setShowLogin(true)}>
+              Loyalty Login
+            </button>
+          )}
+
+          <button
+            className={`navbar-hamburger ${mobileOpen ? 'open' : ''}`}
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+          >
+            <span /><span /><span />
+          </button>
+        </div>
+
+        <div className={`navbar-mobile-menu ${mobileOpen ? 'open' : ''}`}>
+          <Link to="/" className={pathname === '/' ? 'active' : ''}>Home</Link>
+          <Link to="/menu" className={pathname === '/menu' ? 'active' : ''}>Menu</Link>
+          <Link to="/drive-through" className={pathname === '/drive-through' ? 'active' : ''}>Drive-Through</Link>
+          <Link to="/about" className={pathname === '/about' ? 'active' : ''}>About</Link>
+          <Link to="/careers" className={pathname === '/careers' ? 'active' : ''}>Careers</Link>
+          {!user && (
+            <button className="navbar-mobile-login" onClick={() => { setShowLogin(true); setMobileOpen(false) }}>
               Loyalty Login
             </button>
           )}

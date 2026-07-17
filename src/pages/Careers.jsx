@@ -39,6 +39,30 @@ const JOBS = [
   },
 ]
 
+const BURGER_EMOJIS = ['\u{1F354}', '\u{1F35F}', '\u{1F32D}', '\u{1F355}', '\u{1F364}', '\u{1F37B}', '\u{2B50}', '\u{1F525}']
+
+function spawnBurgers(btn) {
+  const rect = btn.getBoundingClientRect()
+  const cx = rect.left + rect.width / 2
+  const cy = rect.top + rect.height / 2
+  const count = 12
+
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('span')
+    el.className = 'burger-particle'
+    el.textContent = BURGER_EMOJIS[Math.floor(Math.random() * BURGER_EMOJIS.length)]
+    el.style.left = `${cx}px`
+    el.style.top = `${cy}px`
+    const angle = (Math.PI * 2 * i) / count
+    const dist = 90 + Math.random() * 30
+    el.style.setProperty('--tx', `${Math.cos(angle) * dist}px`)
+    el.style.setProperty('--ty', `${Math.sin(angle) * dist - 20}px`)
+    el.style.setProperty('--rot', `${(Math.random() - 0.5) * 180}deg`)
+    document.body.appendChild(el)
+    el.addEventListener('animationend', () => el.remove())
+  }
+}
+
 export default function Careers() {
   return (
     <div className="careers-page">
@@ -87,7 +111,7 @@ export default function Careers() {
                   </div>
                   <p>{job.description}</p>
                 </div>
-                <button className="job-apply" onClick={() => alert('This is a demo — no real applications are accepted.')}>
+                <button className="job-apply" onClick={(e) => spawnBurgers(e.currentTarget)}>
                   Apply
                 </button>
               </div>
